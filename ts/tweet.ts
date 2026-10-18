@@ -31,6 +31,19 @@ class Tweet {
     //returns a boolean, whether the text includes any content written by the person tweeting.
     get written():boolean {
         //TODO: identify whether the tweet is written
+        if (this.source != 'completed_event') {
+            return false;
+        }
+        const stripped_text = this.text
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/#RunKeeper/gi, '')
+            .trim();
+        if (stripped_text.includes(' - ')){
+            if (stripped_text.includes('TomTom MySports')){
+                return false;
+            }
+            return true;
+        }
         return false;
     }
 
@@ -39,7 +52,12 @@ class Tweet {
             return "";
         }
         //TODO: parse the written text from the tweet
-        return "";
+        const stripped_text = this.text
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/#RunKeeper/gi, '')
+            .trim();
+        const dash = stripped_text.indexOf(' - ');
+        return stripped_text.substring(dash + 3).trim();
     }
 
     get activityType():string {

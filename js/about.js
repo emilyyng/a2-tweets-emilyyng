@@ -56,6 +56,12 @@ function parseTweets(runkeeper_tweets) {
 
 	setText('miscellaneous', String(miscellaneous));
 	setText('miscellaneousPct', percentage(miscellaneous, total));
+
+	// user-written tweets
+	const written = tweet_array.filter(t => t.written).length;
+
+	setText('written', String(written));
+	setText('writtenPct', percentage(written, completed_event));
 }
 
 //Wait for the DOM to load
