@@ -10,12 +10,40 @@ class Tweet {
 	//returns either 'live_event', 'achievement', 'completed_event', or 'miscellaneous'
     get source():string {
         //TODO: identify whether the source is a live event, an achievement, a completed event, or miscellaneous.
-        return "unknown";
+        // completed: "just completed" (start)
+        // achievement: "achieved" (start)
+        // live: "#RKLive" (includes)
+        // misc: none of the above
+        if (this.text.startsWith("Just completed") || this.text.startsWith("Just posted")) {
+            return "completed_event"
+        }
+        else if (this.text.startsWith("Achieved") || this.text.startsWith("I just set a goal")) {
+            return "achievement"
+        }
+        else if (this.text.includes("#RKLive")) {
+            return "live_event"
+        }
+        else {
+            return "miscellaneous";
+        }
     }
 
     //returns a boolean, whether the text includes any content written by the person tweeting.
     get written():boolean {
         //TODO: identify whether the tweet is written
+        if (this.source != 'completed_event') {
+            return false;
+        }
+        const stripped_text = this.text
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/#RunKeeper/gi, '')
+            .trim();
+        if (stripped_text.includes(' - ')){
+            if (stripped_text.includes('TomTom MySports')){
+                return false;
+            }
+            return true;
+        }
         return false;
     }
 
@@ -24,7 +52,12 @@ class Tweet {
             return "";
         }
         //TODO: parse the written text from the tweet
-        return "";
+        const stripped_text = this.text
+            .replace(/https?:\/\/\S+/g, '')
+            .replace(/#RunKeeper/gi, '')
+            .trim();
+        const dash = stripped_text.indexOf(' - ');
+        return stripped_text.substring(dash + 3).trim();
     }
 
     get activityType():string {
