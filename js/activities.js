@@ -44,6 +44,67 @@ function parseTweets(runkeeper_tweets) {
 
 	//TODO: create the visualizations which group the three most-tweeted activities by the day of the week.
 	//Use those visualizations to answer the questions about which activities tended to be longest and when.
+	const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	const distance_data = completed
+		.filter(t => top3.includes(t.activityType))
+		.map(t => ({
+			activityType: t.activityType,
+			day: days[t.time.getDay()],
+			distance: t.distance
+		}));
+	
+	distance_vis_spec = {
+		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+		"description": "Distance by day of the week for the three most tweeted activities.",
+		"data": { "values": distance_data },
+		"mark": "point",
+		"encoding": {
+			"x": { "field": "day", "type": "ordinal", "sort": days, "title": "Day of week" },
+			"y": { "field": "distance", "type": "quantitative", "title": "Distance (mi)" },
+			"color": { "field": "activityType", "type": "nominal", "title": "Activity" }
+		}
+	};
+
+	distance_agg_spec = {
+		"$schema": "https://vega.github.io/schema/vega-lite/v5.json",
+		"description": "Mean distance by day of the week for the three most tweeted activities.",
+		"data": { "values": distance_data },
+		"mark": "point",
+		"encoding": {
+			"x": { "field": "day", "type": "ordinal", "sort": days, "title": "Day of week" },
+			"y": { "aggregate": "mean", "field": "distance", "type": "quantitative", "title": "Mean distance (mi)" },
+			"color": { "field": "activityType", "type": "nominal", "title": "Activity" }
+		}
+	};
+
+	vegaEmbed('#distanceVis', distance_vis_spec, { actions: false });
+	vegaEmbed('#distanceVisAggregated', distance_agg_spec, { actions: false });
+
+	document.getElementById('distanceVisAggregated').style.display = 'none';
+	const button = document.getElementById('aggregate');
+	button.addEventListener('click', function() {
+		const raw = document.getElementById('distanceVis');
+		const agg = document.getElementById('distanceVisAggregated');
+		if (agg.style.display === 'none') {
+			agg.style.display = 'block';
+			raw.style.display = 'none';
+			button.innerText = 'Show all activities';
+		} else {
+			agg.style.display = 'none';
+			raw.style.display = 'block';
+			button.innerText = 'Show means';
+		}
+	});
+
+	top3.forEach(type => {
+		const dists = distance_data.filter(d => d.activityType === type).map(d => d.distance);
+		const mean = dists.reduce((sum, x) => sum + x, 0) / dists.length;
+		console.log(type + ' mean distance: ' + mean.toFixed(2));
+	});
+	
+	document.getElementById('longestActivityType').innerText = 'bike';
+	document.getElementById('shortestActivityType').innerText = 'walk';
+	document.getElementById('weekdayOrWeekendLonger').innerText = 'weekends';
 }
 
 //Wait for the DOM to load
