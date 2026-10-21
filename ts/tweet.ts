@@ -72,6 +72,8 @@ class Tweet {
         let unitIndex = twt.indexOf('km');
         if (unitIndex == -1) {
             unitIndex = twt.indexOf('mi');
+        }
+        if (unitIndex == -1) {
             return "unknown";
         }
 
@@ -105,6 +107,18 @@ class Tweet {
 
     getHTMLTableRow(rowNumber:number):string {
         //TODO: return a table row which summarizes the tweet with a clickable link to the RunKeeper activity
-        return "<tr></tr>";
+        const words = this.text.split(' ');
+        let link = "";
+        for (let i = 0; i < words.length; i++) {
+            if (words[i].startsWith('http')) {
+                link = words[i];
+                break;
+            }
+        }
+        let linkedText = this.text;
+        if (link !== "") {
+            linkedText = this.text.replace(link, '<a href="' + link + '">' + link + '</a>');
+        }
+        return '<tr><td>' + rowNumber + '</td><td>' + this.activityType + '</td><td>' + linkedText + '</td></tr>';
     }
 }
