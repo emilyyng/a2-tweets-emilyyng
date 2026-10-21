@@ -65,7 +65,24 @@ class Tweet {
             return "unknown";
         }
         //TODO: parse the activity type from the text of the tweet
-        return "";
+        // get the position of the distance and then get the activity until
+        // ' - ' or 'with @RunKeeper' or 'right now'
+        // or after 'watch my' until 'right now'
+        const twt = this.text.split(' ');
+        let unitIndex = twt.indexOf('km');
+        if (unitIndex == -1) {
+            unitIndex = twt.indexOf('mi');
+            return "unknown";
+        }
+
+        let activity = "";
+        for (let i = unitIndex + 1; i < twt.length; i++) {
+            if (twt[i] == 'with' || twt[i] == '-' || twt[i].startsWith('http')) {
+                break;
+            }
+            activity += twt[i] + " ";
+        }
+        return activity.trim().toLowerCase();
     }
 
     get distance():number {
@@ -73,6 +90,16 @@ class Tweet {
             return 0;
         }
         //TODO: prase the distance from the text of the tweet
+        // get the index of km or mi and get whatever number is before that?
+        const twt = this.text.split(' ');
+        const km = twt.indexOf('km');
+        const mi = twt.indexOf('mi');
+        if (km != -1) {
+            return parseFloat(twt[km - 1]) / 1.609;
+        }
+        if (mi != -1) {
+            return parseFloat(twt[mi - 1]);
+        }
         return 0;
     }
 
